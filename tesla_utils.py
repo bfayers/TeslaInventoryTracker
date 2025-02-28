@@ -1,6 +1,6 @@
-import requests
-from typing import List, Tuple
 import json
+from typing import List, Tuple
+import requests
 
 BASE_URL = "https://www.tesla.com/inventory/api/v4/inventory-results"
 
