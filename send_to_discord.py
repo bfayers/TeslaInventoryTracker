@@ -1,6 +1,6 @@
-from tesla_utils import get_tesla_inventory, identify_new_and_changed
-import requests
 import os
+import requests
+from tesla_utils import get_tesla_inventory, identify_new_and_changed
 
 webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
 new_car_thread = os.getenv("DISCORD_NEW_CAR_THREAD")
@@ -72,8 +72,8 @@ inventory = get_tesla_inventory(trims=["LRRWD", "LRAWD"])
 new_cars, changed_cars = identify_new_and_changed(inventory)
 
 # Send the new cars to Discord
-for car in new_cars:
-    send_car_to_discord(car, thread_id=new_car_thread)
+for vehicle in new_cars:
+    send_car_to_discord(vehicle, thread_id=new_car_thread)
 
-for car in changed_cars:
-    send_car_to_discord(car, thread_id=changed_car_thread)
+for vehicle in changed_cars:
+    send_car_to_discord(vehicle, thread_id=changed_car_thread)
