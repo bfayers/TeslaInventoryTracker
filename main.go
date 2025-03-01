@@ -52,7 +52,7 @@ func sendToDiscord(car utils.Car, threadId string) error {
 	p := message.NewPrinter(message.MatchLanguage("en"))
 	embed := Embed{
 		Title: p.Sprintf("%#d %s %s - £%.2f", car.Year, car.Model, car.Trim, car.Price),
-		Url:   fmt.Sprintf("%s/%s/%s", utils.CAR_LINK_BASE_URL, car.Model, car.Vin),
+		Url:   fmt.Sprintf("%s/%s/order/%s", utils.CAR_LINK_BASE_URL, car.Model, car.Vin),
 		Color: 5814783,
 		Author: EmbedAuthor{
 			Name: car.Location,
