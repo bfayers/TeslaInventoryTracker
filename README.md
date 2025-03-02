@@ -1,6 +1,6 @@
 # Tesla Tracker - Webhook Bot
 
-Quick script that can track approved used Tesla's for sale in the UK. Written to handle Model 3.
+Quick script that can track approved used Tesla's for sale in the UK. Written to handle Model 3 originally but should work for all models listed below.
 
 ## Required settings
 Settings are handled with env vars, in the current state you need these:
