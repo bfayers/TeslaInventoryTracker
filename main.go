@@ -104,7 +104,7 @@ func sendToDiscord(car utils.Car, threadId string) error {
 		}
 		for _, photo := range car.Photos[2:5] {
 			data.Embeds = append(data.Embeds, Embed{
-				Url: fmt.Sprintf("%s/%s/%s", utils.CAR_LINK_BASE_URL, car.Model, car.Vin),
+				Url: fmt.Sprintf("%s/%s/order/%s", utils.CAR_LINK_BASE_URL, car.Model, car.Vin),
 				Image: EmbedImage{
 					Url: photo.PhotoURL,
 				},
