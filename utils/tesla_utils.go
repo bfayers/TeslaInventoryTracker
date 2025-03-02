@@ -64,6 +64,7 @@ type Car struct {
 	Price_changed_since_last bool
 	Price_change             float64
 	Photos_added_since_last  bool
+	Missing_since_last       bool
 }
 
 func (c Car) SaveData() SavedCar {
@@ -189,6 +190,25 @@ func LoadSavedCars(inventory []Car) []Car {
 			inventory[i].Is_new = true
 		}
 	}
+	// Check for missing cars
+	for vin, saved_car := range loaded_cars {
+		var found bool = false
+		for _, car := range inventory {
+			if car.Vin == vin {
+				found = true
+				break
+			}
+		}
+		if !found {
+			// Add the missing car to the inventory
+			inventory = append(inventory, Car{
+				Vin:                vin,
+				Price:              saved_car.Price,
+				Is_new:             false,
+				Missing_since_last: true,
+			})
+		}
+	}
 	return inventory
 }
 
@@ -196,6 +216,9 @@ func SaveCars(inventory []Car) {
 	// Save the cars to the file
 	var saved_cars = make(map[string]SavedCar)
 	for _, car := range inventory {
+		if car.Missing_since_last {
+			continue
+		}
 		saved_cars[car.Vin] = car.SaveData()
 	}
 	saved_cars_json, err := json.MarshalIndent(saved_cars, "", "    ")
