@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/bfayers/TeslaInventoryTracker/utils"
 	"golang.org/x/text/message"
@@ -14,6 +16,9 @@ import (
 var DISCORD_WEBHOOK_URL string = os.Getenv("DISCORD_WEBHOOK_URL")
 var DISCORD_NEW_CAR_THREAD string = os.Getenv("DISCORD_NEW_CAR_THREAD")
 var DISCORD_CHANGED_CAR_THREAD string = os.Getenv("DISCORD_CHANGED_CAR_THREAD")
+var MODEL string = os.Getenv("MODEL")
+var YEARS_ENV string = os.Getenv("YEARS")
+var TRIMS_ENV string = os.Getenv("TRIMS")
 
 type EmbedField struct {
 	Name   string `json:"name"`
@@ -165,7 +170,19 @@ func sendToDiscord(car utils.Car, threadId string) error {
 }
 
 func main() {
-	inventory, err := utils.GetTeslaInventory("m3", []int{2024, 2025}, []string{"LRRWD", "LRAWD"})
+	// Parse the env vars for years and trims
+	var YEARS []int
+	var TRIMS []string = strings.Split(TRIMS_ENV, ",")
+
+	for _, year := range strings.Split(YEARS_ENV, ",") {
+		this_year, err := strconv.Atoi(year)
+		if err != nil {
+			fmt.Println("Error: ", err)
+		}
+		YEARS = append(YEARS, this_year)
+	}
+
+	inventory, err := utils.GetTeslaInventory(MODEL, YEARS, TRIMS)
 	if err != nil {
 		fmt.Println("Error: ", err)
 	}
