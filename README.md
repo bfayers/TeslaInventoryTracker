@@ -2,6 +2,8 @@
 
 Quick script that can track approved used Tesla's for sale in the UK. Written to handle Model 3 originally but should work for all models listed below.
 
+The script sends notifications of new cars being listed, changes in price and photo availability. It also notifies when a car that was previously being tracked is removed from the Tesla Inventory. 
+
 ## Required settings
 Settings are handled with env vars, in the current state you need these:
 ```
