@@ -44,15 +44,45 @@ type Embed struct {
 	Fields    []EmbedField `json:"fields,omitempty,omitzero"`
 }
 
-func sendToDiscord(car utils.Car, threadId string) error {
+type DiscordMessage struct {
+	Embeds []Embed `json:"embeds"`
+}
+
+func sendToDiscord(message DiscordMessage, car utils.Car, threadId string) error {
+	json_marshaled, err := json.Marshal(message)
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
+	// Send the data to the discord webhook
+	client := &http.Client{}
+	req, _ := http.NewRequest("POST", DISCORD_WEBHOOK_URL, bytes.NewBuffer(json_marshaled))
+
+	// Set the headers
+	req.Header.Add("Content-Type", "application/json")
+
+	// Add query string for thread
+	q := req.URL.Query()
+	q.Add("thread_id", threadId)
+	req.URL.RawQuery = q.Encode()
+
+	_, err = client.Do(req)
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return err
+	} else {
+		fmt.Printf("Sent %s to Discord\n", car.Vin)
+	}
+	return nil
+}
+
+func sendCarToDiscord(car utils.Car, threadId string) error {
 	// Send to discord
 
 	// Create the embed json
 
 	// Outer data structure
-	var data struct {
-		Embeds []Embed `json:"embeds"`
-	}
+	var data DiscordMessage
 
 	p := message.NewPrinter(message.MatchLanguage("en"))
 	embed := Embed{
@@ -141,32 +171,35 @@ func sendToDiscord(car utils.Car, threadId string) error {
 		}
 	}
 
-	json_marshaled, err := json.Marshal(data)
-	if err != nil {
-		fmt.Println("Error: ", err)
+	return sendToDiscord(data, car, threadId)
+
+}
+
+func sendMissingToDiscord(car utils.Car, threadId string) error {
+	// Create slightly different embed for missing cars
+
+	// Define the embed field mentioning that its missing
+	var infoField = EmbedField{
+		Name:   "Info",
+		Value:  "Previously listed car is no longer available.",
+		Inline: false,
+	}
+
+	// Create the embed
+	p := message.NewPrinter(message.MatchLanguage("en"))
+	embed := Embed{
+		Title:  p.Sprintf("%s - £%.2f", car.Vin, car.Price),
+		Color:  5814783,
+		Fields: []EmbedField{infoField},
+	}
+
+	// Create the data structure
+	var data = DiscordMessage{
+		Embeds: []Embed{embed},
 	}
 
 	// Send the data to the discord webhook
-	client := &http.Client{}
-	req, _ := http.NewRequest("POST", DISCORD_WEBHOOK_URL, bytes.NewBuffer(json_marshaled))
-
-	// Set the headers
-	req.Header.Add("Content-Type", "application/json")
-
-	// Add query string for thread
-	q := req.URL.Query()
-	q.Add("thread_id", threadId)
-	req.URL.RawQuery = q.Encode()
-
-	_, err = client.Do(req)
-	if err != nil {
-		fmt.Println("Error: ", err)
-		return err
-	} else {
-		fmt.Printf("Sent %s to Discord\n", car.Vin)
-	}
-	return nil
-
+	return sendToDiscord(data, car, threadId)
 }
 
 func main() {
@@ -193,9 +226,11 @@ func main() {
 	// Send to discord
 	for _, car := range inventory {
 		if car.Is_new {
-			err = sendToDiscord(car, DISCORD_NEW_CAR_THREAD)
+			err = sendCarToDiscord(car, DISCORD_NEW_CAR_THREAD)
 		} else if car.Price_changed_since_last || car.Photos_added_since_last {
-			err = sendToDiscord(car, DISCORD_CHANGED_CAR_THREAD)
+			err = sendCarToDiscord(car, DISCORD_CHANGED_CAR_THREAD)
+		} else if car.Missing_since_last {
+			err = sendMissingToDiscord(car, DISCORD_CHANGED_CAR_THREAD)
 		}
 		if err != nil {
 			fmt.Println("Error: ", err)
