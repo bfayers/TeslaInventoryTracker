@@ -125,11 +125,19 @@ func GetTeslaInventory(model string, years []int, trims []string) ([]Car, error)
 	// return string(this_query_json)
 
 	// Make API request to Tesla
-	client := &http.Client{}
+	tr := &http.Transport{
+		ForceAttemptHTTP2: false,
+		Protocols:         new(http.Protocols),
+	}
+	tr.Protocols.SetHTTP2(false)
+
+	client := &http.Client{Transport: tr}
+
 	req, err := http.NewRequest("GET", BASE_URL, nil)
 
 	// Add headers to request so we don't get filtered
 	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Connection", "keep-alive")
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:135.0) Gecko/20100101 Firefox/135.0")
 
 	// Add query string built above
