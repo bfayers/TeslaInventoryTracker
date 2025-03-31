@@ -157,7 +157,7 @@ func sendCarToDiscord(car utils.Car, threadId string) error {
 			}
 			data.Embeds[0].Fields = append(data.Embeds[0].Fields, EmbedField{
 				Name:   "Price Change",
-				Value:  p.Sprintf("%s%.2f", symbol, car.Price_change),
+				Value:  p.Sprintf("%s%.2f (%s%.2f%%)", symbol, car.Price_change, symbol, car.Price_change_percent),
 				Inline: true,
 			})
 		}
