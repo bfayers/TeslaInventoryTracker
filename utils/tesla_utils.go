@@ -63,6 +63,7 @@ type Car struct {
 	Is_new                   bool
 	Price_changed_since_last bool
 	Price_change             float64
+	Price_change_percent     float64
 	Photos_added_since_last  bool
 	Missing_since_last       bool
 }
@@ -189,6 +190,7 @@ func LoadSavedCars(inventory []Car) []Car {
 			if car.Price != loaded_cars[car.Vin].Price {
 				inventory[i].Price_changed_since_last = true
 				inventory[i].Price_change = car.Price - loaded_cars[car.Vin].Price
+				inventory[i].Price_change_percent = ((car.Price - loaded_cars[car.Vin].Price) / loaded_cars[car.Vin].Price) * 100
 			}
 			// Check if photos have been added
 			if len(car.Photos) > 0 && !loaded_cars[car.Vin].Photos {
