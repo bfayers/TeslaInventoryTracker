@@ -229,7 +229,7 @@ func main() {
 			err = sendCarToDiscord(car, DISCORD_NEW_CAR_THREAD)
 		} else if car.Price_changed_since_last || car.Photos_added_since_last {
 			err = sendCarToDiscord(car, DISCORD_CHANGED_CAR_THREAD)
-		} else if car.Missing_since_last {
+		} else if car.Missing_since_last && car.Missing_last_time {
 			err = sendMissingToDiscord(car, DISCORD_CHANGED_CAR_THREAD)
 		}
 		if err != nil {

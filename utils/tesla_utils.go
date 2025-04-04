@@ -15,9 +15,10 @@ var CAR_LINK_BASE_URL string = "https://www.tesla.com/en_GB"
 
 // Structs for saving cars to a file
 type SavedCar struct {
-	Vin    string  `json:"vin"`
-	Price  float64 `json:"price"`
-	Photos bool    `json:"photos"`
+	Vin     string  `json:"vin"`
+	Price   float64 `json:"price"`
+	Photos  bool    `json:"photos"`
+	Missing bool    `json:"missing"`
 }
 
 type Car struct {
@@ -66,13 +67,15 @@ type Car struct {
 	Price_change_percent     float64
 	Photos_added_since_last  bool
 	Missing_since_last       bool
+	Missing_last_time        bool
 }
 
 func (c Car) SaveData() SavedCar {
 	return SavedCar{
-		Vin:    c.Vin,
-		Price:  c.Price,
-		Photos: len(c.Photos) > 0,
+		Vin:     c.Vin,
+		Price:   c.Price,
+		Photos:  len(c.Photos) > 0,
+		Missing: c.Missing_last_time,
 	}
 }
 
@@ -216,6 +219,7 @@ func LoadSavedCars(inventory []Car) []Car {
 				Price:              saved_car.Price,
 				Is_new:             false,
 				Missing_since_last: true,
+				Missing_last_time:  saved_car.Missing,
 			})
 		}
 	}
@@ -226,8 +230,13 @@ func SaveCars(inventory []Car) {
 	// Save the cars to the file
 	var saved_cars = make(map[string]SavedCar)
 	for _, car := range inventory {
-		if car.Missing_since_last {
+		// Don't save cars if they're missing and missing last time
+		if car.Missing_last_time && car.Missing_since_last {
 			continue
+		}
+		if car.Missing_since_last {
+			// Flag with Missing now
+			car.Missing_last_time = true
 		}
 		saved_cars[car.Vin] = car.SaveData()
 	}
