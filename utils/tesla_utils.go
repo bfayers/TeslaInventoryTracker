@@ -238,6 +238,10 @@ func SaveCars(inventory []Car) {
 			// Flag with Missing now
 			car.Missing_last_time = true
 		}
+		// Ensure that cars which are not missing are not flagged as missing
+		if !car.Missing_since_last {
+			car.Missing_last_time = false
+		}
 		saved_cars[car.Vin] = car.SaveData()
 	}
 	saved_cars_json, err := json.MarshalIndent(saved_cars, "", "    ")
