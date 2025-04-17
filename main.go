@@ -229,7 +229,8 @@ func main() {
 			err = sendCarToDiscord(car, DISCORD_NEW_CAR_THREAD)
 		} else if car.Price_changed_since_last || car.Photos_added_since_last {
 			err = sendCarToDiscord(car, DISCORD_CHANGED_CAR_THREAD)
-		} else if car.Missing_since_last && car.Missing_last_time {
+		} else if car.Missing_last_time >= 3 {
+			// If the car is missing for more than 3 runs, send a message to discord
 			err = sendMissingToDiscord(car, DISCORD_CHANGED_CAR_THREAD)
 		}
 		if err != nil {

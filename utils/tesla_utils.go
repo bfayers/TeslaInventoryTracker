@@ -18,7 +18,7 @@ type SavedCar struct {
 	Vin     string  `json:"vin"`
 	Price   float64 `json:"price"`
 	Photos  bool    `json:"photos"`
-	Missing bool    `json:"missing"`
+	Missing float64    `json:"missing"`
 }
 
 type Car struct {
@@ -67,7 +67,7 @@ type Car struct {
 	Price_change_percent     float64
 	Photos_added_since_last  bool
 	Missing_since_last       bool
-	Missing_last_time        bool
+	Missing_last_time        float64
 }
 
 func (c Car) SaveData() SavedCar {
@@ -230,17 +230,17 @@ func SaveCars(inventory []Car) {
 	// Save the cars to the file
 	var saved_cars = make(map[string]SavedCar)
 	for _, car := range inventory {
-		// Don't save cars if they're missing and missing last time
-		if car.Missing_last_time && car.Missing_since_last {
+		// If the car has already been missing more than 3 times, don't save it
+		if car.Missing_last_time >= 3 {
 			continue
 		}
 		if car.Missing_since_last {
-			// Flag with Missing now
-			car.Missing_last_time = true
+			// Increment the missing count
+			car.Missing_last_time = car.Missing_last_time + 1
 		}
 		// Ensure that cars which are not missing are not flagged as missing
 		if !car.Missing_since_last {
-			car.Missing_last_time = false
+			car.Missing_last_time = 0
 		}
 		saved_cars[car.Vin] = car.SaveData()
 	}
